@@ -75,7 +75,11 @@ plot(energy(end/2:end),denergy(end/2:end))  %energy range can be varied
 title(['dE/dt vs E, \nu = ' num2str(nu),'  \tau = ' num2str(period)])
 set(gca,'FontSize',13)
 
-%%Multiple plots of the parameter value nu in the same u vs x graph.
+
+
+%%Multiple plots of the parameter value nu in the same u vs x graph. 
+
+
 
 clear all
 clc
@@ -126,7 +130,11 @@ hold off
 legend({'\nu = 0.0669','\nu = 0.062','\nu = 0.06'}    ,'location','northwest')
 set(gca,'FontSize',14)
 
+
+
 %%Time evolution plot
+
+
 
 clear all
 clc
@@ -176,7 +184,11 @@ axis([0.001 2*pi-0.01 0 tmax -20 20])
 set(gca,'ztick',[-20,20]), pbaspect([1 1 0.09]) 
 title(['Time evolution plot, \nu = ' num2str(nu)])
 
+
+
 %%KSE bifurcation diagram
+
+
 
 clear all
 clc
