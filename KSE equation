@@ -1,0 +1,231 @@
+%% A range of scripts used for my full year dissertation researching the Kuramoto-Sivashinsky equation.  All scripts run in Matlab R2017b.
+
+
+%% figure1; u vs x plot
+%% figure2; log(abs(v)) vs k plot
+%% figure3; Energy vs time plot
+%% figure4; dE/dt vs E plot
+
+clear all
+clc
+clf
+
+N = 2^9;   %fourier modes
+dt=0.0005;  %time step; varies dependent on plot
+nu=0.026;   %parameter value; varies dependent on plot
+x = (2*pi/N)*(0:N-1)';
+xx = (2*pi/N)*(0:N)';
+
+u= -sin(x); %initial value
+v = fft(u); %fast fourier transform
+k = [0:N/2-1 0 -N/2+1:-1]'; %fourier variable/wavenumber
+ik3 = k.^2 - nu*k.^4;
+
+tmax =10;  %varies depedent on plot
+nmax = round(tmax/dt); 
+for n = 1:nmax %rk4 method
+t = n*dt;
+time(n) = t;
+g = -.5i*dt*k;
+E = exp(dt*ik3/2);
+E2 = E.^2; 
+a = g.*fft(real( ifft( v ) ).^2);  
+b = g.*fft(real( ifft(E.*(v+a/2)) ).^2); 
+c = g.*fft(real( ifft(E.*v + b/2) ).^2); 
+d = g.*fft(real( ifft(E2.*v+E.*c) ).^2); 
+v = E2.*v + (E2.*a + 2*E.*(b+c) + d)/6; 
+
+u = real(ifft(v));
+uu=[u;u(1)];
+ux = real(ifft(1i*k.*v));
+uux=[ux;ux(1)];
+uxx= real(ifft(-k.^2.*v));
+uuxx=[uxx;uxx(1)];
+energy(n)=sqrt(trapz(xx,uu.^2));  %energy calculation
+denergy(n)=(trapz(xx,uux.^2)-(nu*trapz(xx,uuxx.^2)))/sqrt(trapz(xx,uu.^2)); %dE/dt calculation  
+end
+
+figure(1); 
+plot(xx,uu)
+xlabel('0<x<2\pi')
+ylabel('u')
+xlim([0 2*pi])
+title(['\nu = ' num2str(nu)]) 
+set(gca,'FontSize',14)
+
+figure(2);
+plot(k,log(abs(v)),'x') 
+xlabel('Wavenumber k')
+ylabel('log(abs(v))')
+title(['\nu = ' num2str(nu)])
+set(gca,'FontSize',14)
+
+figure(3); 
+plot(time,energy)
+xlabel('Time')
+ylabel('Energy')
+title(['Energy vs Time, \nu = ' num2str(nu)])
+set(gca,'FontSize',13)
+
+[pks,locs]=findpeaks(energy(360:1400),'MinPeakDistance',300);
+period=mean(diff(locs)*dt); %find peaks to calculate time period
+
+figure(4);
+plot(energy(end/2:end),denergy(end/2:end))  %energy range can be varied
+title(['dE/dt vs E, \nu = ' num2str(nu),'  \tau = ' num2str(period)])
+set(gca,'FontSize',13)
+
+%%Multiple plots of the parameter value nu in the same u vs x graph.
+
+clear all
+clc
+for nu=[0.0669 0.062 0.06] %value of nu
+N = 2^8;  
+dt=0.005; %time step
+x = (2*pi/N)*(0:N-1)';
+xx = (2*pi/N)*(0:N)'; 
+u=-sin(x);  %initial condition
+v = fft(u);
+k = [0:N/2-1 0 -N/2+1:-1]'; %fourier variable/wavenumber
+
+tmax = 100;  %varies
+nmax = round(tmax/dt); 
+ik3 = k.^2 - nu*k.^4;
+for n = 1:nmax 
+t = n*dt; 
+time(n) = t; %rk4 method
+g = -.5i*dt*k;
+E = exp(dt*ik3/2);
+E2 = E.^2; 
+a = g.*fft(real( ifft( v ) ).^2);  
+b = g.*fft(real( ifft(E.*(v+a/2)) ).^2); 
+c = g.*fft(real( ifft(E.*v + b/2) ).^2); 
+d = g.*fft(real( ifft(E2.*v+E.*c) ).^2); 
+v = E2.*v + (E2.*a + 2*E.*(b+c) + d)/6; 
+
+u = real(ifft(v));
+uu=[u;u(1)];
+ux = real(ifft(1i*k.*v));
+uux=[ux;ux(1)];
+uxx= real(ifft(-k.^2.*v));
+uuxx=[uxx;uxx(1)];
+
+energy(n)=sqrt(trapz(xx,uu.^2));  
+denergy(n)=(trapz(xx,uux.^2)-(nu*trapz(xx,uuxx.^2)))/sqrt(trapz(xx,uu.^2));   
+end
+
+figure(1); %plot u vs x
+plot(xx,uu)
+hold on
+xlabel('0<x<2\pi')
+ylabel('u')
+xlim([0 2*pi])
+title('Graph of u vs x')
+end
+hold off
+legend({'\nu = 0.0669','\nu = 0.062','\nu = 0.06'}    ,'location','northwest')
+set(gca,'FontSize',14)
+
+%%Time evolution plot
+
+clear all
+clc
+clf
+
+N = 2^7;  %fourier modes
+dt=0.0005; %time step
+nu=0.026;  %parameter value
+x = (2*pi/N)*(0:N-1)';
+u=-sin(x);  %initial condition
+v = fft(u);
+k = [0:N/2-1 0 -N/2+1:-1]'; %fourier variable/wavenumber
+ik3 = k.^2 - nu*k.^4;
+
+tmax =20;  
+nmax = round(tmax/dt);
+udata=u;
+tdata=0;
+nplt = 150; 
+for n = 1:nmax
+t = n*dt;
+time(n) = t; %rk4 method
+g = -.5i*dt*k;
+E = exp(dt*ik3/2);
+E2 = E.^2; 
+a = g.*fft(real( ifft( v ) ).^2);  
+b = g.*fft(real( ifft(E.*(v+a/2)) ).^2); 
+c = g.*fft(real( ifft(E.*v + b/2) ).^2); 
+d = g.*fft(real( ifft(E2.*v+E.*c) ).^2); 
+v = E2.*v + (E2.*a + 2*E.*(b+c) + d)/6; 
+if mod(n,nplt)==0
+u = real(ifft(v));
+udata= [udata u];
+tdata= [tdata t];
+end
+end
+
+figure(1);
+waterfall(x,tdata,udata')  %time evolution plot
+colormap([0 0 0])
+view(0,30)    %varies dependent on angle of plot
+xlabel x
+ylabel t
+zlabel u
+grid off
+axis([0.001 2*pi-0.01 0 tmax -20 20])   
+set(gca,'ztick',[-20,20]), pbaspect([1 1 0.09]) 
+title(['Time evolution plot, \nu = ' num2str(nu)])
+
+%%KSE bifurcation diagram
+
+clear all
+clc
+clf
+
+N = 2^8;  %fourier modes
+dt=0.0005; %time step  
+
+for nu=0.0298:0.00002:0.031 %range of parameter values
+x = (2*pi/N)*(0:N-1)';
+xx = (2*pi/N)*(0:N)';
+u= -sin(x); %initial condition
+v = fft(u);
+k = [0:N/2-1 0 -N/2+1:-1]'; %fourier variable/wavenumber
+ik3 = k.^2 - nu*k.^4;
+tmax =8; 
+nmax = round(tmax/dt);
+time=linspace(0,nmax*dt,nmax);
+energy=zeros(1,nmax);
+for n = 1:nmax
+t = n*dt;
+time(n) = t; %rk4 method
+g = -.5i*dt*k;
+E = exp(dt*ik3/2);
+E2 = E.^2; 
+a = g.*fft(real( ifft( v ) ).^2);  
+b = g.*fft(real( ifft(E.*(v+a/2)) ).^2); 
+c = g.*fft(real( ifft(E.*v + b/2) ).^2); 
+d = g.*fft(real( ifft(E2.*v+E.*c) ).^2); 
+v = E2.*v + (E2.*a + 2*E.*(b+c) + d)/6; 
+
+u = real(ifft(v));
+uu=[u;u(1)];
+ux = real(ifft(1i*k.*v));
+uux=[ux;ux(1)];
+uxx= real(ifft(-k.^2.*v));
+uuxx=[uxx;uxx(1)];
+
+energy(n)=sqrt(trapz(xx,uu.^2));  %energy calculation
+denergy(n)=(trapz(xx,uux.^2)-(nu*trapz(xx,uuxx.^2)))/sqrt(trapz(xx,uu.^2));  %dE/dt calculation
+if denergy(n)>=-0.2 && denergy(n)<=0 && t>2.5  %values where dE/dt approximately = 0
+plot(nu,energy(n),'r.','MarkerSize',5) 
+xlim([0.0298 0.031]) %axis limits
+ylim([14 20])
+hold on
+end
+end
+end
+title('KSE Bifurcation Diagram (8 time steps)','FontSize',15)
+xlabel('\nu','FontSize',15)
+ylabel('min(E(t))','FontSize',15)
+hold off
