@@ -5,6 +5,8 @@
 
 %%Simple tent map function plot
 
+
+
 mu = 2;  %parameter value
 n = 300;    %number of iterations
 x = linspace(0,1,n);     %creates a vector
@@ -65,7 +67,11 @@ xlabel('x_n')
 ylabel('x_{n+1}')
 hold off
 
+
+
 %% Tent map x_{n} vs n graph
+
+
 
 maxiter=200;   %max iterations
 x=sym(zeros(1,maxiter));
@@ -89,7 +95,11 @@ ylim([0 1])
 title('Time Series plot \mu=2 x_0=0.5')  %%
 hold on
 
+
+
 %%Tent map bifurcation diagram
+
+
 
 maxiter=100;   %varies
 m=sym(zeros(1,maxiter));     
@@ -116,7 +126,10 @@ ylabel('\itx')
 hold off
 
 
+
 %%Bakers map initial plot
+
+
 
 nmax=3000;
 s=rand(nmax,2);
@@ -132,7 +145,11 @@ end
 hold on
 end
 
+
+
 %%Bakers map iterations
+
+
 
 nmax=5000;
 s=rand(nmax,2);
@@ -171,7 +188,11 @@ end
 hold on
 end
 
+
+
 %%F(x,y) map bifurcation diagram
+
+
 
 maxiter=100;   
 x=(zeros(1,maxiter));
@@ -203,7 +224,11 @@ xlabel('b')
 ylabel('\itx')   %ylabel changeable dependent on diagram
 hold off
 
+
+
 %%f(x,y) norm and norm squared bifurcation diagrams
+
+
 
 maxiter=100; 
 x=(zeros(1,maxiter));
