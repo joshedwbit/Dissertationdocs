@@ -1,0 +1,242 @@
+%% A range of scipts used for my half year dissertation researching Chaos theory.  All codes run in Matlab R2017b
+
+
+
+
+%%Simple tent map function plot
+
+mu = 2;  %parameter value
+n = 300;    %number of iterations
+x = linspace(0,1,n);     %creates a vector
+
+for k=1:n
+if x(k) < 0.5            %run the tent function
+y(k)=mu*x(k); 
+elseif x(k) >= 0.5
+y(k)=mu*(1-x(k)); 
+end
+end
+
+plot(x,y)
+xlabel('x_n')
+ylabel('x_{n+1}')
+set(gca,'XTick',0:1)
+set(gca,'YTick',0:1,'YTickLabel',{'0','\mu/2'})  %specific labels on y axis
+
+%%Tent map cobweb diagram
+
+maxiter=200;   
+x=sym(zeros(1,maxiter));
+x1=sym(zeros(1,maxiter));
+x2=sym(zeros(1,maxiter));
+
+x(1)=0.8;            %IC x0=0.8 varies
+mu=2;    %value of parameter varies
+mid=maxiter/2;
+axis([0 1 0 1]);       
+for k=2:maxiter
+if (double(x(k-1)))>=0 && (double(x(k-1)))<=1/2
+x(k)=sym(mu*x(k-1));   
+else
+if (double(x(k-1)))<=1
+x(k)=sym(mu*(1-x(k-1)));      
+end
+end
+end
+for k=1:mid
+x1(2*k-1)=x(k);  
+x1(2*k)=x(k);    
+end
+x2(1)=0;x2(2)=double(x(2));
+for k=2:mid
+x2(2*k-1)=double(x(k));
+x2(2*k)=double(x(k+1));
+end
+hold on
+plot(double(x1),double(x2),'r');
+a=[0 0.5 1];b=[0 mu/2 0];  
+plot(a,b,'b');
+a=[0 1];b=[0 1];
+plot(a,b,'k');
+title('Tent map \mu=2 x_0=0.8')    %title varies
+set(gca,'XTick',0:0.2:1)
+set(gca,'YTick',0:0.2:1)
+xlabel('x_n')
+ylabel('x_{n+1}')
+hold off
+
+%% Tent map x_{n} vs n graph
+
+maxiter=200;   %max iterations
+x=sym(zeros(1,maxiter));
+x(1)=0.5;            %varying I.C
+mu=2;    %varying parameter mu
+nvec=[0:199];        
+for k=2:maxiter
+if (double(x(k-1)))>=0 && (double(x(k-1)))<=1/2
+x(k)=sym(mu*x(k-1));     
+else
+if (double(x(k-1)))<=1
+x(k)=sym(mu*(1-x(k-1)));       
+end
+end
+end
+plot(nvec,x,'b-o')
+xlabel('n')
+ylabel('x_n')
+xlim([0 200]) %can vary for more iterations
+ylim([0 1])
+title('Time Series plot \mu=2 x_0=0.5')  %%
+hold on
+
+%%Tent map bifurcation diagram
+
+maxiter=100;   %varies
+m=sym(zeros(1,maxiter));     
+lastit=30;               
+last=maxiter-(lastit-1); 
+for mu=0:0.005:2           
+m=0.4;mo=m;             
+for k=2:maxiter
+if (double(m(k-1)))>=0 && (double(m(k-1)))<=1/2
+m(k)=sym(mu*m(k-1));    
+else
+if (double(m(k-1)))<=1
+m(k)=sym(mu*(1-m(k-1)));       
+end
+end
+mo=m(k);
+end
+plot(mu*ones(lastit),m(last:maxiter),'r.','MarkerSize',10)
+hold on
+end
+title('Tent Map Bifurcation Diagram x_{0}=0.4')
+xlabel('{\mu}')
+ylabel('\itx')
+hold off
+
+
+%%Bakers map initial plot
+
+nmax=3000;
+s=rand(nmax,2);
+c=zeros(nmax,1);
+axis([0 1 0 1])
+
+for i=1:nmax
+if s(i,1)<=0.5
+plot(s(i,1),s(i,2),'.r')
+else
+plot(s(i,1),s(i,2),'.g')
+end
+hold on
+end
+
+%%Bakers map iterations
+
+nmax=5000;
+s=rand(nmax,2);
+c=zeros(nmax,1);
+axis([0 1 0 1])
+
+for i=1:nmax
+if s(i,1)<=0.5
+c(i)=0;
+else
+c(i)=1;
+end
+end
+
+for k=1:4   %the span of k can be changed, giving different graphs
+for i=1:nmax
+if s(i,1) <=0.5
+s(i,1) = 2*s(i,1);
+s(i,2) = s(i,2)/2;
+else
+s(i,1) = 2*s(i,1)-1;
+s(i,2) = 0.5+s(i,2)/2;
+end
+end
+end
+
+
+
+for i=1:nmax
+if c(i)==0
+plot(s(i,1),s(i,2),'.r')
+hold on
+else
+plot(s(i,1),s(i,2),'.g')
+end
+hold on
+end
+
+%%F(x,y) map bifurcation diagram
+
+maxiter=100;   
+x=(zeros(1,maxiter));
+y=(zeros(1,maxiter));
+x(1)=-0.4;
+y(1)=0.4;
+lastit=30;              
+last=maxiter-(lastit-1); 
+for b=0:0.005:3           
+xo=x; yo=y;
+for n=2:maxiter
+r=2*b;
+s=x(n-1)+2*b+1;
+t=r/s;
+g=abs(y(n-1));
+h=2*g;
+p=1-h;
+x(n)=t*y(n-1);
+y(n)=t.*p;
+xo=x(n);
+yo=y(n);
+
+end
+plot(b*ones(lastit),x(last:maxiter),'r.','MarkerSize',10)  %x,y interchangeable to produce x or y on y axis
+hold on
+end
+title('F(x,y) Map Bifurcation Diagram x_{0}=-0.4, y_{0}=0.4')
+xlabel('b')
+ylabel('\itx')   %ylabel changeable dependent on diagram
+hold off
+
+%%f(x,y) norm and norm squared bifurcation diagrams
+
+maxiter=100; 
+x=(zeros(1,maxiter));
+y=(zeros(1,maxiter));
+d=(zeros(1,maxiter));
+j=(zeros(1,maxiter));
+x(1)=-0.9;
+y(1)=0.2;
+d(1)=sym(sqrt(85)/10);   %changes dependent on initial conditions
+j(1)=(d(1))^2;
+lastit=30;               
+last=maxiter-(lastit-1); 
+for b=0:0.005:3           
+xo=x; yo=y;
+for n=2:maxiter
+r=2*b;
+s=x(n-1)+2*b+1;
+t=r/s;
+g=abs(y(n-1));
+h=2*g;
+p=1-h;
+x(n)=t*y(n-1);
+y(n)=t.*p;
+xo=x(n);
+yo=y(n);
+z=[x(n) y(n)];
+d(n)=norm(z);
+j(n)=(d(n))^2;
+end
+plot(b*ones(lastit),j(last:maxiter),'b.','MarkerSize',8)  %interchangeable for d and j depending on diagram type
+hold on
+end
+title('f(x,y) Map Bifurcation Diagram x_{0}=-0.9, y_{0}=0.2')
+xlabel('b')
+ylabel('|(x,y)|^{2}')   %label varies dependent on diagram
+hold off
